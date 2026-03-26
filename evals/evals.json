@@ -1,0 +1,23 @@
+{
+  "skill_name": "wlb26-test-design-skill",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "วิเคราะห์ และออกแบบ test case ของเงื่อนไข ช่วงเวลาที่อนุญาตให้ทำรายการฝาก ได้ 09:00",
+      "expected_output": "ตั้งคำถามถึง เวลาที่อนุญาตให้ฝากเงินได้ ไม่เกินกี่โมง และไม่เกินกี่นาที"
+    },
+    {
+      "id": 2,
+      "prompt": "วิเคราะห์ และออกแบบ test case ของเงื่อนไข ช่วงเวลาที่อนุญาตให้ทำรายการฝาก ได้ 09:00 - 22:00",
+      "expected_output": "Show test case and test data in table.",
+      "assertions": [
+        "Test case should include Test Case ID, Business Condition, Expected Result, and Production-Likely Test Data."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "วิเคราะห์ และออกแบบ test case ของเงื่อนไข ต้องไม่เป็นบัญชีออมทรัพย์ที่ถูกอายัด",
+      "expected_output": "BVA technique does not apply."
+    }
+  ]
+}
