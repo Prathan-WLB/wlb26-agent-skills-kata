@@ -1,12 +1,12 @@
 #!/bin/bash
-# Deploy skills to ./validate-skills for testing
+# Deploy skills to ../validate-skills/.claude/skills for testing
 # Usage: ./scripts/deploy.sh [skill-name]
 #   If no skill-name provided, deploys all skills
 
 set -e
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DEPLOY_DIR="$REPO_ROOT/validate-skills"
+DEPLOY_DIR="$REPO_ROOT/../validate-skills/.claude/skills"
 
 mkdir -p "$DEPLOY_DIR"
 
