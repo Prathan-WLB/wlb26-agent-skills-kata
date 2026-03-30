@@ -1,0 +1,22 @@
+{
+  "name": "wlb26-agent-skills",
+  "owner": {
+    "name": "welovebug",
+    "email": ""
+  },
+  "metadata": {
+    "description": "WeLoveBug agent skills collection",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "testing-skills",
+      "description": "Collection of testing and quality assurance skills for test design and analysis",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/wlb26-test-design-skill"
+      ]
+    }
+  ]
+}
