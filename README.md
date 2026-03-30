@@ -32,6 +32,10 @@ wlb26-skills/
 3. Fill in the `name`, `description`, and instructions
 4. Add the skill path to `.claude-plugin/marketplace.json`
 
+## Contributing
+
+See [Commit Message Convention](./docs/commit-message-convention.md) for commit message guidelines.
+
 ## Specification
 
 See the full [Agent Skills specification](https://agentskills.io/specification) for details on skill structure, frontmatter fields, and best practices.
