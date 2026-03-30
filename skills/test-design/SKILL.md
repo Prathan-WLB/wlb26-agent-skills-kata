@@ -1,5 +1,5 @@
 ---
-name: wlb26-test-design-skill
+name: test-design
 description: Skills for analysis and design test cases and test scenarios with the blackbox test design techniques from the business conditions. The blackbox techniques: BVA (Boundary Value Analysis)
 license: Apache-2.0
 metadata: 
@@ -36,8 +36,8 @@ For each input variable, identify boundary values:
 
 Output test cases in this format:
 
-| TC ID | Variable | Value | Boundary | Expected | Valid/Invalid |
-|-------|----------|-------|----------|----------|---------------|
+| TC ID | Variable | Value | Boundary | Expected | Success/Alternative |
+|-------|----------|-------|----------|----------|---------------------|
 
 ## Rules
 
