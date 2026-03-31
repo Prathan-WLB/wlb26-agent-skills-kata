@@ -27,7 +27,6 @@ For each input variable, identify boundary values:
 | Min-  | Just below minimum (invalid) | 17 |
 | Min   | Minimum boundary (valid) | 18 |
 | Min+  | Just above minimum (valid) | 19 |
-| Nom   | Nominal / mid-range (valid) | 39 |
 | Max-  | Just below maximum (valid) | 59 |
 | Max   | Maximum boundary (valid) | 60 |
 | Max+  | Just above maximum (invalid) | 61 |
@@ -39,9 +38,11 @@ Output test cases in this format:
 | TC ID | Variable | Value | Boundary | Expected | Success/Alternative |
 |-------|----------|-------|----------|----------|---------------------|
 
+
 ## Rules
 
 - Apply BVA to every input variable that has a defined range
 - Always include both valid and invalid boundary values
 - One test case per boundary point per variable
 - Use the business conditions as the single source of truth for ranges
+- When a condition has only an upper boundary or only a lower boundary (not both), ask the user to confirm whether the missing boundary is intentional before generating test cases
