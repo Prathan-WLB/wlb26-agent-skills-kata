@@ -8,45 +8,12 @@ Immediately after the last applicable step (Step 5 or Step 6) finishes, perform 
    > "Do you want me to export all test cases to a Markdown file? (yes/no) If yes, please confirm the file path or filename."
 2. Wait for the user's confirmation. Do not export until the user explicitly agrees.
 3. If the user declines, acknowledge and end the session. The export question itself is required; the export action is not.
-4. If confirmed, **before** writing the file, gather real values for the metadata header by running these Bash commands:
+4. If confirmed, **before** writing the file, run `./export-metadata.sh` to collect metadata values. The script outputs three labeled sections:
+   - `=== Date ===` — current date in YYYY-MM-DD format
+   - `=== Duration ===` — session length in `Hh Mm Ss` format (computed from JSONL transcript timestamps)
+   - `=== Tokens ===` — JSON object with input, output, cache_creation, cache_read, and total token counts
 
-   **a. Get the current date (real wall-clock):**
-   ```bash
-   date "+%Y-%m-%d"
-   ```
-
-   **b. Get the total session duration** from the same JSONL transcript by computing the difference between the first and last entry's `timestamp` field:
-   ```bash
-   PROJECT_DIR="$HOME/.claude/projects/$(pwd | sed 's|/|-|g')"
-   SESSION_FILE=$(ls -t "$PROJECT_DIR"/*.jsonl 2>/dev/null | head -1)
-   jq -rs '
-     [.[] | .timestamp // empty] as $ts
-     | ($ts | min) as $start
-     | ($ts | max) as $end
-     | (($end | fromdateiso8601) - ($start | fromdateiso8601)) as $secs
-     | "\($secs | floor / 3600 | floor)h \(($secs | floor / 60 | floor) % 60)m \($secs | floor % 60)s (\($secs | floor)s total)"
-   ' "$SESSION_FILE"
-   ```
-
-   **c. Get the total tokens used in the current session** by reading Claude Code's session transcript. Find the most recently modified JSONL file in the current project's session directory and sum every API call's usage fields:
-   ```bash
-   PROJECT_DIR="$HOME/.claude/projects/$(pwd | sed 's|/|-|g')"
-   SESSION_FILE=$(ls -t "$PROJECT_DIR"/*.jsonl 2>/dev/null | head -1)
-   jq -s '
-     [.[] | .message.usage // empty
-       | { input: (.input_tokens // 0),
-           output: (.output_tokens // 0),
-           cache_creation: (.cache_creation_input_tokens // 0),
-           cache_read: (.cache_read_input_tokens // 0) }]
-     | { input: (map(.input) | add),
-         output: (map(.output) | add),
-         cache_creation: (map(.cache_creation) | add),
-         cache_read: (map(.cache_read) | add),
-         total: (map(.input + .output + .cache_creation + .cache_read) | add) }
-   ' "$SESSION_FILE"
-   ```
-
-   If either command fails (e.g., `jq` not installed, no session file), fall back to the best available value and label it as approximate.
+   If any value shows "unavailable", label it as approximate in the exported file.
 
 5. Write a single Markdown file containing **all** generated artifacts in this order:
    - **Metadata header** — at the very top of the file, include the real values captured above:
@@ -69,6 +36,4 @@ Immediately after the last applicable step (Step 5 or Step 6) finishes, perform 
 - Include every generated table and section; do not omit, summarize, or collapse content
 - Use the file path or filename provided by the user; if none is given, ask before choosing a default
 - Every exported file must begin with a metadata header containing Date, Total Duration, and Tokens Used
-- Total Duration must be computed from the first and last `timestamp` entries in the current session's JSONL transcript, not estimated
-- Date must come from the actual `date` command, not from system context or a placeholder
-- Tokens Used must come from summing the current session's JSONL transcript via `jq`, not from a guess. Only fall back to an approximate value if the JSONL or `jq` is genuinely unavailable, and label it as approximate
+- All metadata values (Date, Duration, Tokens) must come from running `./export-metadata.sh`, not from estimates or placeholders. Only label a value as approximate if the script outputs "unavailable"
