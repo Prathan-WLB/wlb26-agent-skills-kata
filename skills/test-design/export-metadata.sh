@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # export-metadata.sh — Collect session metadata for test-design skill export
 # Outputs: date, session duration, and token usage breakdown
-# Reads Claude Code's JSONL session transcript from the current project directory.
+# Reads Claude Code's JSONL session transcript by finding the most recent session across all projects.
 # Prints "unavailable" for any value it cannot compute (e.g., jq missing, no session file).
 
 set -euo pipefail
@@ -11,8 +11,8 @@ echo "=== Date ==="
 date "+%Y-%m-%d"
 
 # --- Shared setup ---
-PROJECT_DIR="$HOME/.claude/projects/$(pwd | sed 's|/|-|g')"
-SESSION_FILE=$(ls -t "$PROJECT_DIR"/*.jsonl 2>/dev/null | head -1 || true)
+# Find the most recently modified JSONL session file across all projects
+SESSION_FILE=$(ls -t "$HOME"/.claude/projects/*/*.jsonl 2>/dev/null | head -1 || true)
 
 if ! command -v jq &>/dev/null; then
   echo "=== Duration ==="
