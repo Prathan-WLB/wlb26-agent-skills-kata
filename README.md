@@ -28,6 +28,29 @@ wlb26-skills/
 └── README.md
 ```
 
+## test-design: Modular Architecture
+
+The test-design skill uses a **router pattern** — only the entry point (`SKILL.md`) is loaded initially. Technique-specific files are loaded on-demand based on Step 2's technique selection:
+
+```
+SKILL.md (Step 1–2: identify variables, select technique)
+  ├── skill-bva-ep.md          (loaded if BVA / EP / BVA+EP selected)
+  ├── skill-state-transition.md (loaded if State Transition selected)
+  └── skill-export.md          (always loaded last)
+        └── export-metadata.sh (collects date, duration, tokens from session)
+```
+
+**Known limitation:** `export-metadata.sh` finds the active session by picking the most recently modified JSONL in `~/.claude/projects/`. If multiple Claude Code sessions are open simultaneously, it may pick the wrong session file.
+
+## Deployment
+
+Deploy a skill to `../validate-skills/.claude/skills/` for testing:
+
+```bash
+./scripts/deploy.sh test-design   # deploy one skill
+./scripts/deploy.sh               # deploy all skills
+```
+
 ## Creating a New Skill
 
 1. Copy `template/SKILL.md` into a new directory under `skills/`
