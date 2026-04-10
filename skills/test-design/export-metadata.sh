@@ -33,11 +33,11 @@ fi
 # --- 2. Session duration ---
 echo "=== Duration ==="
 jq -rs '
-  [.[] | .timestamp // empty] as $ts
+  [.[] | .timestamp // empty | sub("\\.[0-9]+Z$"; "Z")] as $ts
   | ($ts | min) as $start
   | ($ts | max) as $end
   | (($end | fromdateiso8601) - ($start | fromdateiso8601)) as $secs
-  | "\($secs | floor / 3600 | floor)h \(($secs | floor / 60 | floor) % 60)m \($secs | floor % 60)s (\($secs | floor)s total)"
+  | "\($secs / 3600 | floor)h \(($secs / 60 | floor) % 60)m \($secs % 60)s (\($secs | floor)s total)"
 ' "$SESSION_FILE" 2>/dev/null || echo "unavailable (failed to parse session timestamps)"
 
 # --- 3. Token usage breakdown ---
