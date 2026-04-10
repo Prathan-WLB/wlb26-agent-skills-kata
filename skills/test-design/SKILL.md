@@ -4,7 +4,7 @@ description: Skills for analysis and design test cases and test scenarios with t
 license: CC-BY-NC-ND-4.0
 metadata: 
   author: welovebug 2026
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Test Design Skill — BVA, EP, Decision Table, State Transition
@@ -52,6 +52,10 @@ For each BVA-selected variable, identify boundary values:
 
 Then generate BVA test cases **for each condition separately**. Each condition has its own table:
 
+- One test case per boundary point per variable
+- Use business conditions as the single source of truth for ranges
+- If a condition has only one boundary (upper or lower), ask the user to confirm the missing boundary before generating test cases
+
 ### Condition: {condition name}
 
 | TC ID | Variable | Value | Boundary | Expected | Success/Alternative |
@@ -75,6 +79,9 @@ For non-numeric or set-based inputs, define partitions by category:
 | Invalid | A value not in the valid set | unknown |
 
 Then select one representative value from each partition and generate EP test cases **for each condition separately**. Each condition has its own table:
+
+- Do not duplicate coverage with BVA boundary values — EP focuses on the "middle" of each partition
+- For discrete valid sets (enums, categories), treat each valid value as its own partition and add one invalid partition
 
 ### Condition: {condition name}
 
@@ -101,7 +108,7 @@ For N conditions with V1, V2, ..., VN valid values respectively, the total numbe
 
 ### Alternative Scenarios
 
-Each rule has at least one invalid condition. Generate all combinations where at least one condition uses an invalid test case value. Use valid values for the remaining conditions.
+Each rule has at least one invalid condition. Generate all combinations where at least one condition uses an invalid test case value. Use valid values for the remaining conditions. Every invalid test case from Step 3 and Step 4 must appear in at least one alternative rule.
 
 |                     | Rule 1 | Rule 2 | Rule 3 | ... |
 |---------------------|--------|--------|--------|-----|
@@ -118,6 +125,8 @@ Apply this step when the business conditions describe an entity with states that
 ### 6.1 Identify States and Events
 
 List all possible states and the events that can trigger transitions.
+
+List every state and event explicitly — do not omit terminal or error states. If the business conditions are unclear about whether an event is allowed in a given state, ask the user to confirm before generating test cases.
 
 **States:**
 
@@ -157,109 +166,4 @@ Create test cases for **all valid transitions** and **all invalid transitions** 
 
 ## Step 7: Export Test Cases to Markdown
 
-This step is **mandatory** and must always be performed as the final action of every test design session. Do not end the session without asking the export question — even if the user did not mention exporting.
-
-Immediately after the last applicable step (Step 5 or Step 6) finishes, perform the following:
-
-1. Ask the user for confirmation before exporting:
-   > "Do you want me to export all test cases to a Markdown file? (yes/no) If yes, please confirm the file path or filename."
-2. Wait for the user's confirmation. Do not export until the user explicitly agrees.
-3. If the user declines, acknowledge and end the session. The export question itself is required; the export action is not.
-4. If confirmed, **before** writing the file, gather real values for the metadata header by running these Bash commands:
-
-   **a. Get the current date (real wall-clock):**
-   ```bash
-   date "+%Y-%m-%d"
-   ```
-
-   **b. Get the total session duration** from the same JSONL transcript by computing the difference between the first and last entry's `timestamp` field:
-   ```bash
-   PROJECT_DIR="$HOME/.claude/projects/$(pwd | sed 's|/|-|g')"
-   SESSION_FILE=$(ls -t "$PROJECT_DIR"/*.jsonl 2>/dev/null | head -1)
-   jq -rs '
-     [.[] | .timestamp // empty] as $ts
-     | ($ts | min) as $start
-     | ($ts | max) as $end
-     | (($end | fromdateiso8601) - ($start | fromdateiso8601)) as $secs
-     | "\($secs | floor / 3600 | floor)h \(($secs | floor / 60 | floor) % 60)m \($secs | floor % 60)s (\($secs | floor)s total)"
-   ' "$SESSION_FILE"
-   ```
-
-   **c. Get the total tokens used in the current session** by reading Claude Code's session transcript. Find the most recently modified JSONL file in the current project's session directory and sum every API call's usage fields:
-   ```bash
-   PROJECT_DIR="$HOME/.claude/projects/$(pwd | sed 's|/|-|g')"
-   SESSION_FILE=$(ls -t "$PROJECT_DIR"/*.jsonl 2>/dev/null | head -1)
-   jq -s '
-     [.[] | .message.usage // empty
-       | { input: (.input_tokens // 0),
-           output: (.output_tokens // 0),
-           cache_creation: (.cache_creation_input_tokens // 0),
-           cache_read: (.cache_read_input_tokens // 0) }]
-     | { input: (map(.input) | add),
-         output: (map(.output) | add),
-         cache_creation: (map(.cache_creation) | add),
-         cache_read: (map(.cache_read) | add),
-         total: (map(.input + .output + .cache_creation + .cache_read) | add) }
-   ' "$SESSION_FILE"
-   ```
-
-   If either command fails (e.g., `jq` not installed, no session file), fall back to the best available value and label it as approximate.
-
-5. Write a single Markdown file containing **all** generated artifacts in this order:
-   - **Metadata header** — at the very top of the file, include the real values captured above:
-     - **Date:** YYYY-MM-DD (from the `date` command)
-     - **Total Duration:** session length in `Hh Mm Ss` format (from the duration command in step 4b)
-     - **Tokens Used:** total token count from the JSONL sum, with a breakdown of input / output / cache_creation / cache_read on separate lines
-   - Input Variables (Step 1)
-   - Technique Selection (Step 2)
-   - BVA Boundaries and Test Cases (Step 3) — one section per condition
-   - EP Partitions and Test Cases (Step 4) — one section per condition
-   - Decision Table — Success Scenarios and Alternative Scenarios (Step 5)
-   - State Transition — States, Events, Transition Table, Valid and Invalid Transition Test Cases (Step 6)
-6. Preserve all tables exactly as generated. Do not summarize or collapse rows.
-7. After writing, report the file path back to the user.
-
-## Rules
-
-### BVA
-- Apply BVA to every input variable that has a defined range
-- Always include both valid and invalid boundary values
-- One test case per boundary point per variable
-- Use the business conditions as the single source of truth for ranges
-- When a condition has only an upper boundary or only a lower boundary (not both), ask the user to confirm whether the missing boundary is intentional before generating test cases
-
-### EP
-- Apply EP to every input variable selected for EP
-- Cover all valid and invalid partitions — at least one test case per partition
-- Select one representative value per partition (typically a middle value for ranges)
-- Do not duplicate coverage with BVA boundary values — EP focuses on the "middle" of each partition
-- For inputs with discrete valid sets (e.g., enums, categories), treat each valid value as its own partition and add one invalid partition
-- Use the business conditions as the single source of truth for partitions
-
-### Decision Table
-- Build decision tables only after all BVA and EP test cases are complete
-- Generate **all combinations** — do not skip or collapse rules
-- Success table: all combinations of valid values across all conditions (V1 × V2 × ... × VN rules)
-- Alternative table: all combinations where at least one condition uses an invalid value
-- Every invalid test case from Step 3 and Step 4 must appear in at least one alternative rule
-- Each rule (column) represents one unique combination of condition values
-
-### State Transition
-- Apply State Transition only when the business conditions describe an entity with distinct states and events that change those states
-- List every state and every event explicitly — do not omit terminal or error states
-- The state transition table must cover every (state, event) pair, marking invalid transitions explicitly
-- Generate one test case per valid transition (success) and one per invalid transition (alternative)
-- For every valid transition to a next state, define the expected outputs (e.g., notifications sent, fields updated, side effects, return values) — a transition is not fully specified without them
-- Use the business conditions as the single source of truth for states, events, and allowed transitions
-- If the business conditions are unclear about whether an event is allowed in a given state, ask the user to confirm before generating test cases
-
-### Export
-- Step 7 is **mandatory**. A test design session is not complete until the export confirmation question has been asked, regardless of whether the user mentioned exporting
-- Always ask the user for confirmation before exporting — never write the Markdown file automatically
-- Only export after all applicable steps (1–6) have been completed
-- Include every generated table and section; do not omit, summarize, or collapse content
-- Use the file path or filename provided by the user; if none is given, ask before choosing a default
-- Every exported file must begin with a metadata header containing Date, Total Duration, and Tokens Used
-- Total Duration must be computed from the first and last `timestamp` entries in the current session's JSONL transcript, not estimated
-- Date must come from the actual `date` command, not from system context or a placeholder
-- Tokens Used must come from summing the current session's JSONL transcript via `jq`, not from a guess. Only fall back to an approximate value if the JSONL or `jq` is genuinely unavailable, and label it as approximate
+This step is mandatory. When all steps are complete, load and follow: `skill-export.md`
