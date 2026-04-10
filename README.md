@@ -6,19 +6,22 @@ A collection of Agent Skills for Claude Code, following the [Agent Skills specif
 
 | Skill | Description |
 |-------|-------------|
-| [wlb26-test-design-skill](./skills/wlb26-test-design-skill/) | Blackbox test design techniques (BVA) for deriving test cases from business conditions |
+| [test-design](./skills/test-design/) | Blackbox test design techniques (BVA, EP, Decision Table, State Transition) for deriving test cases from business conditions |
 
 ## Project Structure
 
 ```
 wlb26-skills/
-├── .claude-plugin/
-│   └── marketplace.json       # Plugin marketplace configuration
-├── skills/                    # All skill implementations
-│   └── wlb26-test-design-skill/
-│       └── SKILL.md           # Skill definition and instructions
-├── spec/
-│   └── agent-skills-spec.md   # Link to the Agent Skills specification
+├── scripts/
+│   └── deploy.sh              # Deploy skills to validate-skills for testing
+├── skills/
+│   └── test-design/
+│       ├── SKILL.md            # Router — Step 1 (Identify Variables) + Step 2 (Select Technique)
+│       ├── skill-bva-ep.md     # Step 3 (BVA) + Step 4 (EP) + Step 5 (Decision Table)
+│       ├── skill-state-transition.md  # Step 6 (State Transition)
+│       ├── skill-export.md     # Step 7 (Export to Markdown)
+│       ├── export-metadata.sh  # Bash script for session metadata collection
+│       └── LICENSE.txt         # CC-BY-NC-ND-4.0
 ├── template/
 │   └── SKILL.md               # Template for creating new skills
 ├── .gitignore
