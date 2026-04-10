@@ -1,15 +1,21 @@
+### Reference Example
+
+Variable: age | Type: integer | Valid range: 18–60
+- BVA boundaries: Min- = 17, Min = 18, Min+ = 19, Max- = 59, Max = 60, Max+ = 61
+- EP partitions: Valid = 18–60, Invalid (below) = < 18, Invalid (above) = > 60
+
 ## Step 3: BVA — Determine Boundaries
 
 For each BVA-selected variable, identify boundary values:
 
-| Point | Description | Example (age: 18–60) |
-|-------|-------------|----------------------|
-| Min-  | Just below minimum (invalid) | 17 |
-| Min   | Minimum boundary (valid) | 18 |
-| Min+  | Just above minimum (valid) | 19 |
-| Max-  | Just below maximum (valid) | 59 |
-| Max   | Maximum boundary (valid) | 60 |
-| Max+  | Just above maximum (invalid) | 61 |
+| Point | Description | Example |
+|-------|-------------|---------|
+| Min-  | Just below minimum (invalid) | {see Reference Example above} |
+| Min   | Minimum boundary (valid) | {see Reference Example above} |
+| Min+  | Just above minimum (valid) | {see Reference Example above} |
+| Max-  | Just below maximum (valid) | {see Reference Example above} |
+| Max   | Maximum boundary (valid) | {see Reference Example above} |
+| Max+  | Just above maximum (invalid) | {see Reference Example above} |
 
 Then generate BVA test cases **for each condition separately**. Each condition has its own table:
 
@@ -26,11 +32,11 @@ Then generate BVA test cases **for each condition separately**. Each condition h
 
 For each EP-selected variable, divide the input domain into partitions where all values in a partition are expected to be treated the same way:
 
-| Partition Type | Description | Example (age: 18–60) |
-|----------------|-------------|----------------------|
-| Valid | Values within the accepted range/set | 18–60 |
-| Invalid (below) | Values below the valid range | < 18 |
-| Invalid (above) | Values above the valid range | > 60 |
+| Partition Type | Description | Example |
+|----------------|-------------|---------|
+| Valid | Values within the accepted range/set | {see Reference Example above} |
+| Invalid (below) | Values below the valid range | {see Reference Example above} |
+| Invalid (above) | Values above the valid range | {see Reference Example above} |
 
 For non-numeric or set-based inputs, define partitions by category:
 
