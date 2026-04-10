@@ -8,7 +8,7 @@ Immediately after the last applicable step (Step 5 or Step 6) finishes, perform 
    > "Do you want me to export all test cases to a Markdown file? (yes/no) If yes, please confirm the file path or filename."
 2. Wait for the user's confirmation. Do not export until the user explicitly agrees.
 3. If the user declines, acknowledge and end the session. The export question itself is required; the export action is not.
-4. If confirmed, **before** writing the file, run `./export-metadata.sh` to collect metadata values. The script outputs three labeled sections:
+4. If confirmed, **before** writing the file, run `.claude/skills/test-design/export-metadata.sh` to collect metadata values. The script outputs three labeled sections:
    - `=== Date ===` — current date in YYYY-MM-DD format
    - `=== Duration ===` — session length in `Hh Mm Ss` format (computed from JSONL transcript timestamps)
    - `=== Tokens ===` — JSON object with input, output, cache_creation, cache_read, and total token counts
@@ -36,4 +36,4 @@ Immediately after the last applicable step (Step 5 or Step 6) finishes, perform 
 - Include every generated table and section; do not omit, summarize, or collapse content
 - Use the file path or filename provided by the user; if none is given, ask before choosing a default
 - Every exported file must begin with a metadata header containing Date, Total Duration, and Tokens Used
-- All metadata values (Date, Duration, Tokens) must come from running `./export-metadata.sh`, not from estimates or placeholders. Only label a value as approximate if the script outputs "unavailable"
+- All metadata values (Date, Duration, Tokens) must come from running `.claude/skills/test-design/export-metadata.sh`, not from estimates or placeholders. Only label a value as approximate if the script outputs "unavailable"
